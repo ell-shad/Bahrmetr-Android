@@ -1,0 +1,59 @@
+# ============================================================
+#  Bahrmetr — .gitattributes
+#
+#  The B4X IDE writes every source file as UTF-8 **with BOM**
+#  and **CRLF** line endings. Git must never rewrite them:
+#  a stray LF/BOM change makes the IDE show a "file changed
+#  outside the IDE" prompt and can corrupt the .b4a design
+#  text. The -text flag disables all end-of-line conversion
+#  and keeps files byte-for-byte identical to what the IDE wrote.
+# ============================================================
+
+# ---- B4X / B4A sources: preserve exactly, no conversion ------
+*.bas      -text
+*.b4a      -text
+*.b4j      -text
+*.b4i      -text
+*.b4am     -text
+*.b4x      -text
+
+# ---- Binary assets: never diff, never convert ----------------
+*.bal      binary
+*.db       binary
+*.aab      binary
+*.apk      binary
+*.png      binary
+*.jpg      binary
+*.ico      binary
+*.ttf      binary
+*.otf      binary
+*.so       binary
+*.zip      binary
+*.class    binary
+*.dex      binary
+*.jar      binary
+*.aar      binary
+
+# ---- Everything else: safe to normalise to LF ----------------
+*.md       text
+*.txt      text
+*.json     text
+*.sql      text
+*.py       text
+*.xml      text
+*.yml      text
+*.yaml     text
+LICENSE    text
+
+# ---- GitHub language stats -----------------------------------
+# B4X has no GitHub linguist grammar; label it explicitly so the
+# language bar reflects reality.
+*.bas      linguist-language=Basic
+*.b4a      linguist-language=Basic
+*.b4j      linguist-language=Basic
+*.b4i      linguist-language=Basic
+
+# Generated/build trees (also in .gitignore, belt and braces)
+Project/*/B4A/Objects/**    linguist-generated=true
+Project/*/B4A/AutoBackups/** linguist-generated=true
+data/*.db                    linguist-generated=true
