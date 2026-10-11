@@ -19,8 +19,8 @@ In rough order of value:
 2. **Populating `qelibs.enqelib`.** Currently 0 of 94 rows. Pure data work, no
    code changes required. See [DATA.md](DATA.md#data-quality-notes).
 3. **Adding meter patterns.** See [DATA.md](DATA.md#extending-the-data).
-4. **Wiring up ad consent** if you ship a fork with ads in the EU — see
-   [SECURITY.md](SECURITY.md#ads-and-consent-ump-is-not-wired-up).
+4. **Adding indexes** on `bahrs.HECA` and `qelibs.hga` — every search is a full
+   table scan today. See [DATA.md](DATA.md#adding-indexes).
 5. **Making it actually build.** See [BUILD.md](BUILD.md); it does not compile
    as-is.
 6. **Documentation.** Especially of the matching algorithm — see below.
@@ -35,8 +35,8 @@ This project has **no CI**, and the code is a format most tooling cannot parse.
       was left broken on purpose.
 - [ ] If you change application logic, say which known issues your change
       resolves, and which it deliberately leaves.
-- [ ] If you change the database, regenerate `data/behrdat-plaintext.db` with
-      `data/decrypt_db.py` and update [DATA.md](DATA.md).
+- [ ] If you change the database, update the row counts and schema notes in
+      [DATA.md](DATA.md).
 - [ ] Confirm you have not committed anything from [SECURITY.md](SECURITY.md).
 - [ ] Keep changes focused. This is a small codebase; large refactors are hard
       to review without a working build.
@@ -71,25 +71,21 @@ the point of the naming. Document new code in English.
 ```bash
 git clone <your-fork>
 cd bahrmetr
-
-# Read the data (optional, only if working on the dataset)
-python3 -m venv .venv
-./.venv/bin/pip install sqlcipher3-binary
-./.venv/bin/python data/decrypt_db.py
 ```
 
-To build the app you need **Windows** and a **paid B4A subscription**. See
+To build the app you need **Windows** and a **paid B4A subscription**. There is
+no Firebase project to set up, no API key, and no database password. See
 [BUILD.md](BUILD.md).
 
 ---
 
 ## Working on the dataset
 
-The plaintext database is at `data/behrdat-plaintext.db` and opens in any
-SQLite tool:
+The database lives at `Project/Bahrmetr/B4A/Files/behrdat.db`. It is a **plain
+SQLite file** — no password, no SQLCipher:
 
 ```bash
-sqlite3 data/behrdat-plaintext.db
+sqlite3 Project/Bahrmetr/B4A/Files/behrdat.db
 ```
 
 Schema is in [DATA.md](DATA.md#schema). Please keep the two tables' existing

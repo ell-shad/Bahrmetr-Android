@@ -36,8 +36,9 @@ Backup_*/
 *.bks
 
 # ---- Secrets / per-developer config --------------------------
-# Firebase project config. Use google-services.json.example
-# as the template. See SECURITY.md.
+# Bahrmetr itself has no Google/Firebase dependency any more, so
+# there is no project config to supply. These entries stay as
+# defence-in-depth in case a fork reintroduces one.
 google-services.json
 GoogleServices-Info.plist
 agconnect-services.json
@@ -83,7 +84,8 @@ ehthumbs.db
 $RECYCLE.BIN/
 SysVol/
 
-# ---- Python (only used by data/decrypt_db.py) ----------------
+# ---- Python ---------------------------------------------------
+# Bahrmetr needs no Python tooling. Kept for forks that add some.
 __pycache__/
 *.py[cod]
 .venv/

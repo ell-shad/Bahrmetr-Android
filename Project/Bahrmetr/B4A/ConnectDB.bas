@@ -9,9 +9,8 @@ Version=11.2
 Sub Process_Globals
 	'These global variables will be declared once when the application starts.
 	'These variables can be accessed from all modules.
-	Dim varSQL As SQLCipher
+	Dim varSQL As SQL
 	Dim resul As ResultSet
-	Private psw As String = "masmililer123!5"
 End Sub
 
 Sub ConnectionToDB
@@ -19,7 +18,7 @@ Sub ConnectionToDB
 	
 	Try
 		conDB=DBUtils.CopyDBFromAssets("behrdat.db")
-		varSQL.Initialize(conDB,"behrdat.db", True,psw,Null )
+		varSQL.Initialize(conDB,"behrdat.db", False)
 	Catch
 		Log(LastException)
 	End Try

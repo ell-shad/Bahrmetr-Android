@@ -12,12 +12,10 @@ FileGroup5=Default Group
 Group=Default Group
 Library1=b4xpages
 Library2=core
-Library3=firebaseadmob2
-Library4=runtimepermissions
-Library5=sql
-Library6=xui views
-Library7=sqlcipher
-ManifestCode='This code will be applied to the manifest file during compilation.~\n~'You do not need to modify it in most cases.~\n~'See this link for for more information: https://www.b4x.com/forum/showthread.php?p=78136~\n~AddManifestText(~\n~<uses-sdk android:minSdkVersion="5" android:targetSdkVersion="33"/>~\n~<supports-screens android:largeScreens="true" ~\n~    android:normalScreens="true" ~\n~    android:smallScreens="false" ~\n~    android:anyDensity="true"/>)~\n~SetApplicationAttribute(android:icon, "@drawable/icon")~\n~SetApplicationAttribute(android:label, "$LABEL$")~\n~CreateResourceFromFile(Macro, Themes.LightTheme)~\n~'End of default text.~\n~~\n~~\n~CreateResourceFromFile(Macro, FirebaseAnalytics.GooglePlayBase)~\n~CreateResourceFromFile(Macro, FirebaseAdMob.FirebaseAds)~\n~CreateResourceFromFile(Macro, FirebaseAnalytics.Firebase)~\n~CreateResourceFromFile(Macro, FirebaseNotifications.FirebaseNotifications)~\n~CreateResourceFromFile(Macro, FirebaseAnalytics.FirebaseAnalytics)~\n~~\n~'This is a sample AdMob app id. You need to change it to your id.~\n~AddReplacement($ADMOB_APP_ID$, ca-app-pub-8118319368008476~9500219955) ~\n~~\n~~\n~~\n~~\n~SetApplicationAttribute(android:icon, "@mipmap/ic_launcher")~\n~SetApplicationAttribute(android:roundIcon, "@mipmap/ic_launcher_round")~\n~~\n~CreateResource(mipmap-anydpi-v26, ic_launcher.xml,~\n~<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">~\n~<background android:drawable="@color/ic_launcher_background" />~\n~<foreground android:drawable="@mipmap/ic_launcher_foreground" />~\n~</adaptive-icon>~\n~)~\n~~\n~~\n~SetApplicationAttribute(android:theme, "@style/LightTheme")~\n~CreateResource(values, colors.xml,~\n~<resources>~\n~    <color name="actionbar">#FF005975</color>~\n~   <color name="statusbar">#FF005975</color>~\n~   <color name="textColorPrimary">#ffffffff</color>~\n~   <color name="navigationBar">#FF005975</color>~\n~~\n~</resources>~\n~)~\n~CreateResource(values-v20, theme.xml,~\n~<resources>~\n~    <style name="LightTheme" parent="@android:style/Theme.Material.Light">~\n~        <item name="android:colorPrimary">@color/actionbar</item>~\n~		   <item name="android:itemBackground">@color/actionbar</item>~\n~        <item name="android:colorPrimaryDark">@color/statusbar</item>~\n~        <item name="android:textColorPrimary">@color/textColorPrimary</item>~\n~        <item name="android:navigationBarColor">@color/navigationBar</item>~\n~    </style>~\n~	~\n~</resources>~\n~)~\n~CreateResource(values-v14, theme.xml,~\n~<resources>~\n~    <style name="LightTheme" parent="@android:style/Theme.Holo.Light">~\n~       <item name="android:actionBarStyle">@style/CustomActionBarStyle</item>~\n~    </style>~\n~   <style name="CustomActionBarStyle" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">~\n~       <item name="android:background">@color/actionbar</item>~\n~   </style>~\n~</resources>~\n~)~\n~~\n~
+Library3=runtimepermissions
+Library4=sql
+Library5=xui views
+ManifestCode='This code will be applied to the manifest file during compilation.~\n~'You do not need to modify it in most cases.~\n~'See this link for for more information: https://www.b4x.com/forum/showthread.php?p=78136~\n~AddManifestText(~\n~<uses-sdk android:minSdkVersion="5" android:targetSdkVersion="33"/>~\n~<supports-screens android:largeScreens="true" ~\n~    android:normalScreens="true" ~\n~    android:smallScreens="false" ~\n~    android:anyDensity="true"/>)~\n~SetApplicationAttribute(android:icon, "@drawable/icon")~\n~SetApplicationAttribute(android:label, "$LABEL$")~\n~CreateResourceFromFile(Macro, Themes.LightTheme)~\n~'End of default text.~\n~~\n~SetApplicationAttribute(android:icon, "@mipmap/ic_launcher")~\n~SetApplicationAttribute(android:roundIcon, "@mipmap/ic_launcher_round")~\n~~\n~CreateResource(mipmap-anydpi-v26, ic_launcher.xml,~\n~<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">~\n~<background android:drawable="@color/ic_launcher_background" />~\n~<foreground android:drawable="@mipmap/ic_launcher_foreground" />~\n~</adaptive-icon>~\n~)~\n~~\n~~\n~SetApplicationAttribute(android:theme, "@style/LightTheme")~\n~CreateResource(values, colors.xml,~\n~<resources>~\n~    <color name="actionbar">#FF005975</color>~\n~   <color name="statusbar">#FF005975</color>~\n~   <color name="textColorPrimary">#ffffffff</color>~\n~   <color name="navigationBar">#FF005975</color>~\n~~\n~</resources>~\n~)~\n~CreateResource(values-v20, theme.xml,~\n~<resources>~\n~    <style name="LightTheme" parent="@android:style/Theme.Material.Light">~\n~        <item name="android:colorPrimary">@color/actionbar</item>~\n~		   <item name="android:itemBackground">@color/actionbar</item>~\n~        <item name="android:colorPrimaryDark">@color/statusbar</item>~\n~        <item name="android:textColorPrimary">@color/textColorPrimary</item>~\n~        <item name="android:navigationBarColor">@color/navigationBar</item>~\n~    </style>~\n~	~\n~</resources>~\n~)~\n~CreateResource(values-v14, theme.xml,~\n~<resources>~\n~    <style name="LightTheme" parent="@android:style/Theme.Holo.Light">~\n~       <item name="android:actionBarStyle">@style/CustomActionBarStyle</item>~\n~    </style>~\n~   <style name="CustomActionBarStyle" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">~\n~       <item name="android:background">@color/actionbar</item>~\n~   </style>~\n~</resources>~\n~)~\n~~\n~
 Module1=aboyt
 Module2=|relative|..\B4XMainPage
 Module3=ConnectDB
@@ -25,7 +23,7 @@ Module4=DBUtils
 Module5=Starter
 Module6=Utils
 NumberOfFiles=5
-NumberOfLibraries=7
+NumberOfLibraries=5
 NumberOfModules=6
 Version=12.5
 @EndOfDesignText@
@@ -52,7 +50,6 @@ Sub Process_Globals
 End Sub
 
 Sub Globals
-	Private BannerAd As AdView
 
 End Sub
 
@@ -62,49 +59,9 @@ Sub Activity_Create(FirstTime As Boolean)
 	pm.Initialize(Activity)
 	ConnectDB.ConnectionToDB
 
-	
-	
-	
-	Dim AdaptiveSize As Map = GetAdaptiveAdSize
-	'Add Private BannerAd As AdView in Globals sub
-	BannerAd.Initialize2("BannerAd", "ca-app-pub-8118319368008476/5187130926",AdaptiveSize.Get("native"))
-	Activity.AddView(BannerAd, Activity.Width- AdaptiveSize.Get("width"), Activity.Height-AdaptiveSize.Get("height"),  AdaptiveSize.Get("width"), AdaptiveSize.Get("height"))
-	BannerAd.LoadAd
-	
-	
-
 End Sub
 
 
-
-
-
-Sub Ad_ReceiveAd
-	Log("Adview received")
-End Sub
-
-Sub Ad_FailedToReceiveAd (ErrorCode As String)
-	Log("Failed: " & ErrorCode)
-End Sub
-
-Sub Ad_AdClosed
-	Log("Closed")
-End Sub
-
-Sub Ad_AdOpened
-	Log("Opened")
-End Sub
-
-
-Sub GetAdaptiveAdSize As Map
-	Dim ctxt As JavaObject
-	ctxt.InitializeContext
-	Dim AdSize As JavaObject
-	Dim width As Int = 100%x / GetDeviceLayoutValues.Scale
-	Dim Native As JavaObject = AdSize.InitializeStatic("com.google.android.gms.ads.AdSize").RunMethod("getCurrentOrientationAnchoredAdaptiveBannerAdSize", Array(ctxt, width))
-	Return CreateMap("native": Native, "width": Native.RunMethod("getWidthInPixels", Array(ctxt)), _
-        "height": Native.RunMethod("getHeightInPixels", Array(ctxt)))
-End Sub
 
 
 

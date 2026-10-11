@@ -4,9 +4,9 @@ This app was last built on **3 September 2023** on Windows with **B4X IDE
 12.5**. This document records what is needed to reproduce that build, and —
 importantly — what is **missing** from this repository.
 
-> **Short version:** you need Windows + a licensed B4X IDE, you must supply your
-> own Firebase config and signing keystore, and the project will download its
-> B4X libraries at their *current* versions, not the versions it shipped with.
+> **Short version:** you need Windows + a licensed B4X IDE and your own signing
+> keystore. There is no Firebase project to set up, no API key to supply, and no
+> database password — the app is fully offline.
 
 ---
 
@@ -19,6 +19,10 @@ importantly — what is **missing** from this repository.
 | **License** | B4X is commercial. A **paid B4A subscription is required** to compile an Android app. The IDE will not build without one. |
 | **JDK** | Bundled with B4X; nothing to install separately |
 | **Android SDK** | Platform 33 (`android-33`) — see [`d8_arguments.txt` reconstruction](#recovered-build-environment) |
+
+**No other setup is required.** The published app has no network dependency, no
+analytics, no ads, and no encryption. `google-services.json` is not needed and is
+not part of the project.
 
 ---
 
@@ -35,17 +39,26 @@ Download and install B4X IDE, then install the **B4A** target from the IDE's
 Project/Bahrmetr/B4A/Bahrmetr.b4a
 ```
 
-The project file declares these seven libraries:
+The project declares these five libraries:
 
 | # | Library | Pulled in by |
 |---|---|---|
 | 1 | `b4xpages` | B4XPages multi-page framework |
 | 2 | `core` | Core types and runtime |
-| 3 | `firebaseadmob2` | AdMob + Firebase Analytics |
-| 4 | `runtimepermissions` | Runtime permissions (AndroidX) |
-| 5 | `sql` | SQLite access |
-| 6 | `xui views` | B4X cross-platform view library |
-| 7 | `sqlcipher` | Encrypted SQLite |
+| 3 | `runtimepermissions` | Runtime permissions (AndroidX) |
+| 4 | `sql` | SQLite access |
+| 5 | `xui views` | B4X cross-platform view library |
+
+Two libraries that the shipped app depended on have been **removed** and are no
+longer downloaded:
+
+- **`sqlcipher`** — the database is plain SQLite now.
+- **`firebaseadmob2`** — the ad and analytics stack was removed entirely.
+
+If you are comparing against the original release, note that removing
+`firebaseadmob2` also removed the Firebase Analytics and Cloud Messaging
+manifest macros, since all three were supplied by that one library. Neither
+Analytics nor FCM was actually used by the app.
 
 ### 3. Let the IDE download the libraries — **read this first**
 
@@ -71,23 +84,7 @@ reproducible build, download those specific library versions and commit their
 B4X libraries are distributed under the B4X EULA and are **not** covered by this
 project's GPL-3.0 license. See [Library licensing](#library-licensing).
 
-### 4. Provide your Firebase configuration
-
-The real `google-services.json` is **not committed** — it contains a live API
-key. A template is provided:
-
-```bash
-cp Project/Bahrmetr/B4A/google-services.json.example \
-   Project/Bahrmetr/B4A/google-services.json
-```
-
-Then fill in your own Firebase project values. Full instructions are in the
-comments inside the example file.
-
-If you change the package name, update **both** the example file and
-`Build1=Default,com.coriolis.bahrmetr,jupiter_edition` in `Bahrmetr.b4a`.
-
-### 5. Provide your own signing keystore
+### 4. Provide your own signing keystore
 
 **No keystore is committed, and none should ever be.** Generate your own:
 
@@ -102,18 +99,9 @@ The signed `Bahrmetr.aab` that shipped with the app was signed with a
 certificate issued to `CN=Elshad Guliyev, O=Coriolis, C=AZ`, valid until 2060.
 That certificate's public half is recoverable from any copy of the app.
 
-### 6. Use AdMob test IDs while developing
+### 5. Build
 
-`Bahrmetr.b4a` hard-codes the production AdMob app ID and banner unit ID.
-**Google's official test IDs are used during development instead**, or you risk
-suspension for invalid traffic:
-
-```
-Banner:  ca-app-pub-3940256099942544/6300978111
-App ID:  ca-app-pub-3940256099942544~3347511713
-```
-
-`B4XNative2.bas` already uses Google's test native-ad unit.
+That is the whole setup. There is nothing to configure.
 
 ---
 
@@ -131,7 +119,7 @@ This syncs an **empty** directory (`Shared Files/`) into `B4A/Files/`. It does
 nothing useful and will fail on any non-Windows system. It can be deleted
 safely, or replaced with a no-op.
 
-**`Project/Bahrmetr/B4A/Bahrmetr.b4a:22`**
+**`Project/Bahrmetr/B4A/Bahrmetr.b4a:20`**
 
 ```
 Module2=|relative|..\B4XMainPage
@@ -147,7 +135,7 @@ fine; the B4X IDE is Windows-only regardless.
 `Project/Bahrmetr/B4J/` and `Project/Bahrmetr/B4i/` are **untouched B4X project
 templates**. Both point their `Module1` at `..\B4XMainPage`, which is saturated
 with Android-only types — `B4AMenuItem`, `B4AFloatTextField`, `Label`, `Panel`,
-`Colors`, `AdView`.
+`Colors`.
 
 **Neither can compile, and never did.** Their layout files still contain the
 stock template with a single `Button1` control.
@@ -165,52 +153,48 @@ The following was reconstructed from `Objects/d8_arguments.txt`, which is
 gitignored because it embeds absolute paths from the original machine
 (`C:\Users\Elshad Guliyev\Desktop\projets\...`).
 
+> These are the versions from the **original** build, which still included the
+> SQLCipher and Firebase/AdMob libraries that have since been removed. Only the
+> B4X library entries are relevant to the project as it now stands; the Google
+> and AndroidX entries are kept for reference.
+
 **Toolchain**
 
 | | |
 |---|---|
 | Android platform | `android-33` (`targetSdkVersion 33`) |
 | `minSdkVersion` | `5` — see [known issue](KNOWN_ISSUES.md#other) |
-| SQLCipher | `android-database-sqlcipher` **4.0.0** (native libs for arm64-v8a, armeabi, armeabi-v7a, x86, x86_64) |
+| SQLCipher | `android-database-sqlcipher` 4.0.0 — **no longer used** |
 
 **B4X library versions** (trailing number is the B4X library build ID)
 
 ```
-b4ashared                        63822315362000
-firebaseadmob2                   63822315362000
-runtimepermissions.androidx       63822315362000
-bitmapcreator                    63822315362000
-dateutils                        63822315362000
-ime                              63822315362000
-javaobject                       63822315362000
-core                             63822315362000
-sql                              63822315364000
-stringutils                      63822315364000
-xui                              63822315364000
-xcustomlistview                  63822315364000
-sqlcipher                        63679891102000
-android-database-sqlcipher-4.0.0 63780915070000
+b4ashared          63822315362000     <- core
+sql                63822315364000
+stringutils        63822315364000
+xui                63822315364000     <- xui views
+xcustomlistview    63822315364000
+runtimepermissions.androidx 63822315362000
+bitmapcreator      63822315362000
+dateutils          63822315362000
+ime                63822315362000
+javaobject         63822315362000
+
+removed:
+  sqlcipher                       63679891102000
+  firebaseadmob2                  63822315362000
 ```
 
-**Google Play services / Firebase artifacts**
+**Google Play services / Firebase artifacts** — *all no longer used*
 
 ```
-play-services-ads               21.3.0
-play-services-ads-base          21.3.0
-play-services-ads-lite          21.3.0
-play-services-ads-identifier    18.0.1
-play-services-base              18.1.0
-play-services-basement          18.1.0
+play-services-ads               21.3.0      firebase-ads          21.3.0
+play-services-ads-base          21.3.0      firebase-analytics    21.2.0
+play-services-ads-lite          21.3.0      firebase-common       20.0.0
+play-services-ads-identifier    18.0.1      firebase-components   17.0.1
+play-services-base              18.1.0      firebase-installations 17.1.0
+play-services-basement          18.1.0      user-messaging-platform 2.0.0
 play-services-tasks              18.0.2
-play-services-appset            16.0.2
-play-services-stats             17.0.3
-firebase-ads                    21.3.0
-firebase-analytics              21.2.0
-firebase-common                 20.0.0
-firebase-components             17.0.1
-firebase-installations          17.1.0
-firebase-measurement-connector  20.0.0
-user-messaging-platform         2.0.0
 ```
 
 **AndroidX**
@@ -232,10 +216,9 @@ customview          1.1.0      print                1.0.0
 
 ## Library licensing
 
-The B4X libraries (B4XPages, XUI Views, SQLCipher wrapper, and the
-Google/AndroidX artifacts they pull in) are **third-party components with their
-own licenses** — the B4X EULA, the Apache 2.0 license, and the
-SQLCipher Community BSD license respectively.
+The B4X libraries (B4XPages, XUI Views, RuntimePermissions, and the
+AndroidX artifacts they pull in) are **third-party components with their own
+licenses** — the B4X EULA and the Apache 2.0 license respectively.
 
 This repository's GPL-3.0 license covers **only the Bahrmetr source code you
 see under `Project/`**. It does not relicense any bundled library.
@@ -258,12 +241,13 @@ empty directory and is not needed.
 
 **`Cannot resolve symbol` / undefined types**
 The IDE is resolving newer library versions than the app was written against.
-Check [the version list above](#b4x-library-versions) and pin matching versions.
+Check [the version list above](#b4x-library-versions-trailing-number-is-the-b4x-library-build-id)
+and pin matching versions.
 
-**Database fails to open**
-`ConnectDB.bas` reads the SQLCipher password from the `psw` variable. If you
-have replaced `Files/behrdat.db` with the plaintext copy from `data/`, use a
-plain `SQL` object instead — SQLCipher cannot open an unencrypted file.
+**`String is not a database` at startup**
+You have an encrypted copy of `Files/behrdat.db` from the original release.
+The project expects a plain SQLite file. Decrypt it, or take the copy from this
+repository — see [DATA.md](DATA.md).
 
 ---
 
@@ -271,4 +255,4 @@ plain `SQL` object instead — SQLCipher cannot open an unencrypted file.
 
 - [KNOWN_ISSUES.md](KNOWN_ISSUES.md) — defects to fix before trusting results
 - [DATA.md](DATA.md) — the database
-- [SECURITY.md](SECURITY.md) — secrets and signing
+- [SECURITY.md](SECURITY.md) — what was removed before publishing

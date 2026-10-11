@@ -3,79 +3,40 @@
 `behrdat.db` is the app's only data source. It contains every meter pattern the
 app knows about, pre-encoded for matching.
 
+The database is a **plain SQLite file**. It opens with any standard `sqlite3`
+tool — no password, no SQLCipher, no special build.
+
 ---
 
-## Files
+## File
 
-| Path | What it is |
+```
+Project/Bahrmetr/B4A/Files/behrdat.db
+```
+
+| | |
 |---|---|
-| `Project/Bahrmetr/B4A/Files/behrdat.db` | **The shipped asset.** SQLCipher-encrypted, 663,552 bytes. Copied to internal storage on first run. |
-| `data/behrdat-plaintext.db` | **Readable copy**, committed so the data can be inspected and extended. 593,920 bytes. |
-| `data/schema.sql` | Schema only, no data. |
-| `data/decrypt_db.py` | Regenerates the plaintext copy from the encrypted one. |
+| Size | 593,920 bytes |
+| SHA-256 | `50dcf03965b8e44b83bfa6ac826eba23215e9f9e5e2ac22904f9aabc4cf7bd85` |
+| Rows | 3,467 + 94 |
+| `PRAGMA integrity_check` | `ok` |
 
----
-
-## Regenerating the plaintext copy
+The app copies this file from its assets folder to internal storage on first
+run, then opens the copy. You can inspect it in place:
 
 ```bash
-python3 -m venv .venv
-./.venv/bin/pip install sqlcipher3-binary
-./.venv/bin/python data/decrypt_db.py --force
+sqlite3 Project/Bahrmetr/B4A/Files/behrdat.db
 ```
 
-Expected output:
+A schema-only dump is kept at [`data/schema.sql`](data/schema.sql) for
+convenience.
 
-```
-  bahrs        3467 rows
-  qelibs         94 rows
-
-  size:   593920 bytes
-  sha256: 50dcf03965b8e44b83bfa6ac826eba23215e9f9e5e2ac22904f9aabc4cf7bd85
-```
-
-If you have the `sqlcipher` CLI instead, the script falls back to it
-automatically.
-
-The password is read from `Project/Bahrmetr/B4A/ConnectDB.bas`, so there is one
-source of truth.
-
----
-
-## ⚠️ The encryption provides no confidentiality
-
-The database is encrypted with SQLCipher, but **the password is hard-coded in
-the source**:
-
-```basic
-' Project/Bahrmetr/B4A/ConnectDB.bas:14
-Private psw As String = "masmililer123!5"
-```
-
-The encrypted file ships inside the APK and the password ships in the source
-that built it. Anyone can unzip the app, read the password, and decrypt the
-data. SQLCipher here is obfuscation, not security.
-
-It does add ~11 MB of native `.so` libraries to the APK across five ABIs. If you
-are forking this and do not need to preserve the encrypted asset format,
-switching to a plain SQLite database is a straightforward win.
-
----
-
-## Cipher parameters
-
-Non-obvious, and needed if you rewrite the decryptor. The bundled
-`libsqlcipher.so` reports version **4.0.0** but still exports SQLCipher 3.x
-cipher names (`aes-256-cbc-hmac-sha1`), which is misleading:
-
-| Setting | Value |
-|---|---|
-| Key derivation | `PBKDF2_HMAC_SHA512` |
-| Iterations | `256000` |
-| Page size | `4096` |
-| HMAC | `HMAC_SHA512` |
-
-Trying SHA-1 defaults fails with `hmac check failed for pgno=1`.
+> **History.** The original shipped asset was SQLCipher-encrypted, but the
+> password was hard-coded in `ConnectDB.bas` — so the encryption never provided
+> any real confidentiality. The file has been decrypted and the SQLCipher
+> dependency removed, so the project no longer builds it. **The data itself is
+> unchanged**: every row and both schemas were verified byte-for-byte identical
+> against the original before the swap.
 
 ---
 
@@ -104,8 +65,6 @@ Note the inconsistent casing between the two tables (`bahrs` is all-caps,
 `qelibs` is lowercase). The queries rely on SQLite's case-insensitivity for
 column names, so this works — but it is a trap when writing new SQL.
 
-`PRAGMA integrity_check` returns `ok`.
-
 ---
 
 ## Contents
@@ -126,8 +85,8 @@ Every encoded verse pattern the app has seen, across 9 meters:
 | `munsarih` | 34 | Munsarih / Münsərih |
 | `mutedarik` | 12 | Mutadarik / Mütədarik |
 
-`HECA` (syllable count) ranges **5–20**. `trqalib` is fully populated (3,467 /
-3,467).
+`HECA` (syllable count) ranges **5–20**. `trqalib` is fully populated
+(3,467 / 3,467).
 
 ### `qelibs` — 94 rows
 
@@ -230,25 +189,12 @@ the UI renders the string `xeta` — see
 Valid keys: `ramal`, `hazac`, `muzare`, `munsarih`, `mutedarik`, `muqtazab`,
 `kamil`, `khafif`, `muctas`, `mutaqarib`, `racaz`, `sari`.
 
----
+### Adding indexes
 
-## Re-encrypting
-
-If you modify `data/behrdat-plaintext.db` and want to ship it in place of the
-original:
-
-```bash
-sqlcipher data/behrdat-plaintext.db \
-  "ATTACH DATABASE 'new.db' AS enc KEY 'your-password';
-   SELECT sqlcipher_export('enc');
-   DETACH DATABASE enc;"
+```sql
+CREATE INDEX idx_bahrs_heca ON bahrs(HECA);
+CREATE INDEX idx_qelibs_hga  ON qelibs(hga);
 ```
-
-Then replace `Project/Bahrmetr/B4A/Files/behrdat.db` with `new.db` and update
-the `psw` value in `ConnectDB.bas`.
-
-⚠️ If you change the password, note that existing installs will fail to open
-the database — there is no migration path in the app.
 
 ---
 

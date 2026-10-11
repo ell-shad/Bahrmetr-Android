@@ -28,10 +28,22 @@ meter name (*behr*) and its rhythmic pattern (*qəlib*).
 | **Meters covered** | 12 (*behr*) — hazaj, ramal, muzare, khafif, rajaz, sari, mujtass, munsarih, mutadarik, mutaqarib, Kamil, muqtab |
 | **Patterns in DB** | 94 canonical patterns + 3,467 encoded verse patterns |
 | **Languages** | Azerbaijani · Turkish · English |
+| **Network** | None — fully offline |
 | **Package id** | `com.coriolis.bahrmetr` |
 | **Last release** | 1.0.2 (versionCode 4) |
 | **Last modified** | 3 September 2023 |
 | **License** | GPL-3.0 |
+
+---
+
+## Screenshots
+
+| | |
+|---|---|
+| <img src="docs/screenshots/01-empty-state.jpg" alt="Empty state" width="240"> | <img src="docs/screenshots/02-result-azerbaijani.jpg" alt="Azerbaijani result" width="240"> |
+| Enter three verses | Match found — Azerbaijani |
+| <img src="docs/screenshots/03-result-turkish.jpg" alt="Turkish result" width="240"> | <img src="docs/screenshots/04-language-dialog.jpg" alt="Language dialog" width="240"> |
+| Match found — Turkish | Language selection |
 
 ---
 
@@ -49,9 +61,21 @@ Specifically:
   before trusting any result this app produces.
 - ✅ The **data** is readable and usable — see [DATA.md](DATA.md).
 
-The code is published in the state it shipped, because that state is what
-documents the app's behaviour. Fixes are deliberately **not** applied, so that
-what you read is what shipped.
+### What was changed before publishing
+
+The matching logic and database contents are untouched. Four things were removed
+so that the repository presents the app as it would ideally have been:
+
+| Removed | Why |
+|---|---|
+| **SQLCipher encryption** | The database was encrypted with a password hard-coded in the source, so it never protected anything. It is now plain SQLite. |
+| **The database password** | No longer exists anywhere in the project. |
+| **Google AdMob** | Ads were unrelated to the app's purpose. |
+| **Firebase Analytics + Cloud Messaging** | Supplied by the same library as AdMob and never used. Neither was. |
+
+With those gone the app has **no network code, no tracking, no permissions
+beyond the Android defaults, and no secrets**. See [SECURITY.md](SECURITY.md)
+for the full record.
 
 ---
 
@@ -101,11 +125,9 @@ The app then labels the outcome as either a *precise* match or a *probable* one.
 ├── CONTRIBUTING.md
 ├── SECURITY.md
 ├── LICENSE              ← GPL-3.0
-├── data/                ← decrypted database + schema + decrypt script
-│   ├── behrdat-plaintext.db
-│   ├── schema.sql
-│   └── decrypt_db.py
-├── docs/                ← icon assets
+├── data/
+│   └── schema.sql       ← database schema, for convenience
+├── docs/                ← icon + screenshots
 └── Project/Bahrmetr/    ← the B4X project
     ├── B4XMainPage.bas  ← all application logic (504 lines)
     ├── B4A/             ← the Android target (this is the real app)
@@ -119,17 +141,15 @@ The app then labels the outcome as either a *precise* match or a *probable* one.
 |---|---:|---|
 | `B4XMainPage.bas` | 504 | Encoding, matching, UI, language switching — everything |
 | `B4XMainPage.bas` → `aboyt.bas` | 55 | "About" page |
-| `B4XMainPage.bas` → `ConnectDB.bas` | 26 | SQLCipher connection |
+| `B4XMainPage.bas` → `ConnectDB.bas` | 26 | SQLite connection |
 | `B4XMainPage.bas` → `Utils.bas` | 193 | Encoding helpers, meter-name translation |
-| `B4XMainPage.bas` → `Starter.bas` | 40 | Boot service, AdMob initialisation |
+| `B4XMainPage.bas` → `Starter.bas` | 40 | Boot service |
 | `B4XMainPage.bas` → `DBUtils.bas` | 413 | Stock B4X utility library (one function used) |
-| `B4XMainPage.bas` → `AdsHelper.bas` | 493 | **Not compiled** — AdMob consent (UMPC) |
-| `B4XMainPage.bas` → `mwNative.bas` | 197 | **Not compiled** — native ad renderer |
-| `B4XMainPage.bas` → `B4XNative2.bas` | 41 | **Not compiled** — native ad page |
 | `B4XMainPage.bas` → `Localizator.bas` | 163 | **Not compiled** — DB-backed i18n (unused) |
 | `B4XMainPage.bas` → `ConnectionDB.bas` | 30 | **Not compiled** — superseded by `ConnectDB.bas` |
 
-Roughly 43% of the source in this repository is not part of the build. See
+Two further modules — `Localizator.bas` and `ConnectionDB.bas` — are present
+but not part of the build. See
 [KNOWN_ISSUES.md](KNOWN_ISSUES.md#dead-code).
 
 ---
@@ -146,27 +166,22 @@ Short version:
 
 1. Install [B4X IDE](https://www.b4x.com/b4a.html) (version 12.5 or later).
 2. Open `Project/Bahrmetr/B4A/Bahrmetr.b4a`.
-3. Let the IDE download the 7 B4X libraries listed in the project file.
-4. Copy `Project/Bahrmetr/B4A/google-services.json.example` to
-   `google-services.json` and fill in your own Firebase project.
-5. Provide your own signing keystore — **no keystore is committed, by design**.
-6. Build.
+3. Let the IDE download the 5 B4X libraries listed in the project file.
+4. Provide your own signing keystore — **no keystore is committed, by design**.
+5. Build.
+
+There is no Firebase project to create, no API key to supply, and no database
+password to configure.
 
 ---
 
 ## The database
 
-`Project/Bahrmetr/B4A/Files/behrdat.db` is the app's only data source. It ships
-encrypted with SQLCipher, but **the password is in the source**, so the
-encryption provides no real confidentiality.
-
-A decrypted, readable copy is committed at **`data/behrdat-plaintext.db`** so
-the dataset can be inspected and extended. To regenerate it:
+`Project/Bahrmetr/B4A/Files/behrdat.db` is the app's only data source. It is a
+**plain SQLite file** — open it with any standard tool:
 
 ```bash
-python3 -m venv .venv
-./.venv/bin/pip install sqlcipher3-binary
-./.venv/bin/python data/decrypt_db.py
+sqlite3 Project/Bahrmetr/B4A/Files/behrdat.db
 ```
 
 Schema, contents and instructions for adding meters are in **[DATA.md](DATA.md)**.

@@ -218,18 +218,19 @@ open fails, `varSQL` stays uninitialised and every later query throws.
 
 ---
 
-### 10. Ad banner is unhandled and overlaps the UI
+### 10. No indexes on the columns every query filters on
 
-**File:** `Project/Bahrmetr/B4A/Bahrmetr.b4a` — lines 68–72
+**File:** `Project/Bahrmetr/B4A/Files/behrdat.db`
 
-- `BannerAd.LoadAd` has no failure callback, so a failed request leaves a
-  permanent empty grey strip on screen.
-- The view is never removed in `Activity_Pause`.
-- It is positioned with absolute arithmetic (`Activity.Width - width`) and
-  overlays the B4XPages root instead of participating in the layout.
-- **No UMP consent flow is wired up**, despite `AdsHelper.bas` (493 lines of
-  consent-management code) sitting unused in the project. See
-  [Security Notes](SECURITY.md#ads-and-consent).
+Neither `bahrs.HECA` nor `qelibs.hga` is indexed:
+
+```sql
+SELECT * FROM qelibs WHERE hga = ?
+SELECT * FROM bahrs  WHERE HECA = ?
+```
+
+Each search is a full table scan over 3,467 rows. Harmless at this size, but it
+is the first thing to add if the dataset grows — see [DATA.md](DATA.md).
 
 ---
 
@@ -237,30 +238,32 @@ open fails, `varSQL` stays uninitialised and every later query throws.
 
 ### Dead code
 
-Five modules are present in `Project/Bahrmetr/B4A/` but are **not** in the
+Two modules are present in `Project/Bahrmetr/B4A/` but are **not** in the
 compiled module list (`Module1`–`Module6` in `Bahrmetr.b4a`). They do not
 affect the build:
 
 | File | Lines | Note |
 |---|---:|---|
-| `AdsHelper.bas` | 493 | AdMob consent (UMP) — the only consent code present |
-| `mwNative.bas` | 197 | Native ad renderer |
-| `B4XNative2.bas` | 41 | Native ad page, not registered |
 | `Localizator.bas` | 163 | DB-backed i18n; needs `strings.db`, which does not exist |
-| `ConnectionDB.bas` | 30 | Superseded by `ConnectDB.bas`; references a member that does not exist |
+| `ConnectionDB.bas` | 30 | Superseded by `ConnectDB.bas`; references `B4XPages.MainPage.SQL`, a member that does not exist, so it would crash if called |
+
+They are left in place deliberately — `Localizator.bas` is a working i18n
+implementation that a fork wanting to externalise the hard-coded strings could
+adopt.
 
 Also unused: `Files/lang.bal`, `Files/g5145.png`, and `Shared Files/` (empty —
 though `B4XMainPage.bas:8` still has a Robocopy step pointing at it).
 
 `DBUtils.bas` is a stock B4X utility library; only `CopyDBFromAssets` is called.
 
-**They are left in place deliberately** — `AdsHelper.bas` in particular is
-working code that a fork wiring up ad consent would want.
+Three further modules that used to sit here — `AdsHelper.bas`, `mwNative.bas`
+and `B4XNative2.bas` — were deleted when the ad stack was removed. See
+[SECURITY.md](SECURITY.md#google-admob).
 
 ### Other
 
-- `minSdkVersion="5"` while AdMob 21.3.0 and Firebase require API 19–21+.
-  Expect crashes on very old devices.
+- `minSdkVersion="5"` while the bundled AndroidX artifacts of that era require
+  API 19–21+. Expect crashes on very old devices.
 - `B4J/` and `B4i/` are untouched B4X templates pointing at Android-only shared
   code. Neither can compile. Left in place and documented; see
   [BUILD.md](BUILD.md#b4j-and-b4i).

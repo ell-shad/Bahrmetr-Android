@@ -18,8 +18,6 @@ End Sub
 Sub Service_Create
 	'This is the program entry point.
 	'This is a good place to load resources that are not specific to a single activity.
-	Dim m As MobileAds
-	Wait For (m.Initialize) MobileAds_Ready
 End Sub
 
 Sub Service_Start (StartingIntent As Intent)

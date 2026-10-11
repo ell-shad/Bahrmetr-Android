@@ -9,33 +9,112 @@ was found, what was done, and what is left for you to decide.
 
 | Finding | Status |
 |---|---|
-| Live Firebase API key in `google-services.json` | ✅ Removed — gitignored, template provided |
-| SQLCipher password in `ConnectDB.bas` | ⚠️ Still present — source left untouched by request |
-| AdMob production IDs in `Bahrmetr.b4a` | ⚠️ Still present — source left untouched by request |
+| SQLCipher password in `ConnectDB.bas` | ✅ Removed, along with all encryption |
+| Live Firebase API key in `google-services.json` | ✅ Removed — file excluded entirely |
+| AdMob production IDs in `Bahrmetr.b4a` | ✅ Removed |
+| Firebase Analytics + Cloud Messaging | ✅ Removed (unused, same library as AdMob) |
+| Ad modules (`AdsHelper`, `mwNative`, `B4XNative2`) | ✅ Deleted |
 | Signed `.aab` with your certificate | ✅ Excluded |
 | `d8_arguments.txt` leaking `C:\Users\<name>\...` | ✅ Excluded |
 | 41.7 MB of build output | ✅ Excluded |
 | No LICENSE | ✅ Added (GPL-3.0) |
-| No ad consent flow (UMP) in the shipped app | ⚠️ Documented, not fixed |
+| No ad consent flow (UMP) | ✅ Moot — ads removed |
 | No `SECURITY.md` | ✅ This file |
+
+**The published project now has no secrets, no network code, no tracking, and
+no encryption.**
 
 ---
 
-## What was removed
+## What was removed, and why
 
-### Firebase credentials
+### SQLCipher encryption
 
-`Project/Bahrmetr/B4A/google-services.json` contained a live API key, project
-number and OAuth client ID. It is now gitignored. A template is provided at
-`Project/Bahrmetr/B4A/google-services.json.example`.
+The database shipped encrypted with a password hard-coded in the source:
 
-**Important:** removing the file from git does not unpublish the key. It was
-already distributed inside every release of the app, and Firebase API keys are
-visible in the shipped APK. If that key has API access you care about,
-**rotate it in the Firebase console** — restricting it by package name and API
-in the Google Cloud console is the more important control either way.
+```basic
+' Project/Bahrmetr/B4A/ConnectDB.bas:14 (removed)
+Private psw As String = "masmililer123!5"
+```
 
-### Signed build artifacts
+The encrypted file shipped **inside the APK** and the password shipped in the
+source that built it. Anyone could unzip the app, read the password and decrypt
+the data. The encryption provided no confidentiality, and cost roughly 11 MB of
+native `.so` libraries across five ABIs.
+
+**What changed**
+
+| | Before | After |
+|---|---|---|
+| `ConnectDB.bas` | `Dim varSQL As SQLCipher` | `Dim varSQL As SQL` |
+| `ConnectDB.bas` | `varSQL.Initialize(..., True, psw, Null)` | `varSQL.Initialize(..., False)` |
+| `ConnectDB.bas` | `Private psw As String = "..."` | *removed* |
+| `Bahrmetr.b4a` | `Library7=sqlcipher` | *removed* (7 libraries → 5) |
+
+**The data is unchanged.** Every row of both tables and both schema definitions
+were verified byte-for-byte identical against the original encrypted file before
+the swap — 3,467 `bahrs` rows, 94 `qelibs` rows, `PRAGMA integrity_check` = `ok`.
+
+### Google AdMob
+
+Removed from `Bahrmetr.b4a`:
+
+- `Library3=firebaseadmob2` (libraries renumbered, `NumberOfLibraries` 7 → 5)
+- `CreateResourceFromFile(Macro, FirebaseAdMob.FirebaseAds)`
+- `AddReplacement($ADMOB_APP_ID$, ca-app-pub-8118319368008476~9500219955)`
+- The `BannerAd` field in `Sub Globals`
+- The banner construction and `Activity.AddView` block in `Activity_Create`
+- `Sub GetAdaptiveAdSize`
+- `Sub Ad_ReceiveAd`, `Ad_FailedToReceiveAd`, `Ad_AdClosed`, `Ad_AdOpened`
+
+Deleted outright:
+
+| File | Lines | Why |
+|---|---:|---|
+| `AdsHelper.bas` | 493 | AdMob consent (UMP) — moot without ads |
+| `mwNative.bas` | 197 | Native ad renderer |
+| `B4XNative2.bas` | 41 | Native ad page, not registered |
+
+The banner had real defects anyway — no failure callback, never removed on
+pause, and absolute positioning that overlaid the B4XPages root. See
+[KNOWN_ISSUES.md](KNOWN_ISSUES.md).
+
+### Firebase Analytics and Cloud Messaging
+
+`firebaseadmob2` was the **only** Google library in the project, and it supplied
+all three manifest macros. Removing it therefore meant removing:
+
+```
+CreateResourceFromFile(Macro, FirebaseAnalytics.GooglePlayBase)
+CreateResourceFromFile(Macro, FirebaseAnalytics.Firebase)
+CreateResourceFromFile(Macro, FirebaseNotifications.FirebaseNotifications)
+CreateResourceFromFile(Macro, FirebaseAnalytics.FirebaseAnalytics)
+```
+
+Neither Analytics nor FCM was ever called by application code — both existed
+only to measure ad performance. Both are gone, along with:
+
+- `Project/Bahrmetr/B4A/google-services.json` (excluded, and the `.example`
+  template deleted since there is nothing left to configure)
+- The `INTERNET`, `ACCESS_NETWORK_STATE`, `AD_ID`, `FOREGROUND_SERVICE`,
+  `WAKE_LOCK`, `c2dm.RECEIVE` and `BIND_GET_INSTALL_REFERRER_SERVICE`
+  permissions, which were all injected by those libraries
+
+> The permission list above is from the **generated** manifest in the excluded
+> `Objects/` tree. Regenerate the manifest by building once and confirm the
+> result — an offline app should need no permissions at all.
+
+### Ad consent (UMP) — resolved
+
+The shipped app requested ads with **no consent collection**, including for
+users in the EEA/UK, while 493 lines of unused UMP code sat in the project. That
+is a real GDPR exposure. It is moot now that ads are gone.
+
+---
+
+## What remains
+
+### Your signing certificate
 
 The shipped `Objects/Bahrmetr.aab` was signed with a certificate issued to:
 
@@ -45,13 +124,26 @@ SHA256: E8:73:46:99:A5:97:AC:50:41:EF:3D:72:BC:06:E6:9F:3F:CE:DA:EF:21:18:D1:CF:
 Valid: 2022-03-08 → 2060-07-06
 ```
 
-The `.aab` is now excluded, as are `*.keystore`, `*.jks`, `*.p12` and friends.
+The `.aab` is excluded, as are `*.keystore`, `*.jks`, `*.p12` and friends.
 
 The **private** key was not in the source tree and remains safe. But if you ever
 committed a keystore to a previous repository, check that repository's history
 before assuming it is still private.
 
-### Machine-local paths
+### The Firebase API key is still recoverable
+
+The old `google-services.json` contained a live API key. It is excluded from
+git, but **removing the file does not unpublish the key** — it was embedded in
+every release of the app and is visible in the shipped APK.
+
+**If that key has API access you care about, rotate it in the Firebase
+console.** Nothing in the current project depends on Firebase, so rotating it
+breaks nothing. Restricting it by package name and API in the Google Cloud
+console is the more important control either way.
+
+---
+
+## Machine-local paths
 
 `Objects/d8_arguments.txt` contained **510 lines** of absolute Windows paths
 including `C:\Users\Elshad Guliyev\Desktop\projets\Project\Bahrmetr\`. Excluded
@@ -60,85 +152,13 @@ via `.gitignore`, and the relevant environment details were distilled into
 
 ---
 
-## What is still in the repository, and why
-
-You asked that application source stay untouched. These items were therefore
-left in place:
-
-### SQLCipher password — `Project/Bahrmetr/B4A/ConnectDB.bas:14`
-
-```basic
-Private psw As String = "masmililer123!5"
-```
-
-The database ships **inside the APK** and the password ships in the source that
-built it. The encryption provides no confidentiality whatsoever — anyone can
-unzip the app and decrypt `behrdat.db`.
-
-Because a plaintext copy is also committed at `data/behrdat-plaintext.db`, the
-data is openly readable regardless. See [DATA.md](DATA.md#-the-encryption-provides-no-confidentiality).
-
-**Recommendation for a fork:** either drop SQLCipher and ship a plain SQLite
-file — saving ~11 MB of native libraries across five ABIs — or move the key out
-of the source. Do not ship it as-is and describe it as encryption.
-
-### AdMob IDs — `Project/Bahrmetr/B4A/Bahrmetr.b4a`
-
-```
-App ID:   ca-app-pub-8118319368008476~9500219955
-Banner:   ca-app-pub-8118319368008476/5187130926
-```
-
-AdMob publisher IDs are semi-public — they appear in the manifest of every
-installed copy. They are not secrets in the way an API key is.
-
-**If you fork this and publish your own app**, replace both with your own, and
-use Google's [test ad unit IDs](https://developers.google.com/admob/android/test-ads)
-during development. Running production ads from a forked app against the
-original's ad unit risks invalid-traffic suspension for *your* AdMob account.
-
----
-
 ## Open concerns
-
-### Ad consent (UMP) is not wired up
-
-`Project/Bahrmetr/B4A/AdsHelper.bas` contains 493 lines of AdMob User Messaging
-Platform consent-management code. It is **not in the compiled module list** —
-`Bahrmetr.b4a` lists only six modules, and `AdsHelper` is not among them.
-
-The shipped app therefore requests ads with **no consent collection**, including
-for users in the EEA/UK. Google's UMP integration is required for AdMob to serve
-in those regions.
-
-If you publish a fork with ads in the EU, wire `AdsHelper.bas` up first, or
-consider removing ads entirely — a prosody reference tool is a perfectly good
-ad-free app.
 
 ### `minSdkVersion="5"`
 
-Set in `Bahrmetr.b4a` and generated `AndroidManifest.xml`, while the bundled
-AdMob 21.3.0 and Firebase artifacts require API 19–21 or higher. Expect crashes
-on very old devices.
-
-### No permissions beyond the required set
-
-The generated manifest requests only:
-
-```
-INTERNET
-ACCESS_NETWORK_STATE
-AD_ID
-FOREGROUND_SERVICE
-WAKE_LOCK
-c2dm.RECEIVE
-BIND_GET_INSTALL_REFERRER_SERVICE
-```
-
-No location, contacts, storage, camera or microphone. For an offline
-pattern-matching app with ads, that is a reasonable minimum. `FOREGROUND_SERVICE`
-and `WAKE_LOCK` come from the Firebase Notifications library, which this app
-does not otherwise use — they could likely be dropped.
+Set in `Bahrmetr.b4a`, while the bundled AndroidX artifacts of that era required
+API 19–21 or higher. Now that the Google libraries are gone this is less
+pressing, but it should still be raised.
 
 ---
 
@@ -156,19 +176,19 @@ chance to react.
 
 ## Before you publish
 
-- [x] `.gitignore` covers build output, keys, Firebase config, OS cruft
+- [x] `.gitignore` covers build output, keys and OS cruft
 - [x] `.gitattributes` prevents git rewriting the IDE's CRLF+BOM files
-- [x] `google-services.json` excluded, template provided
-- [x] No keystore, `.aab`, or `.apk` committed
-- [x] No absolute paths from the original machine
+- [x] No encryption, no password, no secrets
+- [x] No AdMob, no Firebase, no tracking, no network code
+- [x] No signed artifacts or absolute paths from the original machine
 - [x] LICENSE added
-- [ ] **Consider rotating the Firebase API key** if it has API access you care about
-- [ ] **Decide whether to publish a fork with ads** — if so, get your own AdMob account and consent flow
+- [ ] **Rotate the Firebase API key** — it is still recoverable from any installed copy
+- [ ] **Build once and confirm the generated manifest requests no permissions**
 
 ---
 
 ## See also
 
 - [BUILD.md](BUILD.md) — build and signing setup
-- [DATA.md](DATA.md) — database and its encryption
+- [DATA.md](DATA.md) — the database
 - [KNOWN_ISSUES.md](KNOWN_ISSUES.md)
