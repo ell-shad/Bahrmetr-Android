@@ -223,10 +223,8 @@ to report a match as "precise" when it is not. They are documented, not fixed.
 - **Meter data** was compiled from Şirvani Ədili, *Əruz Vəzninin Sadələşdirilmiş
   Qəlibləri*. The app's own "About" screen credits this book.
 - **Toolchain:** this app was written in
-  [B4X](https://www.b4x.com/), the cross-platform language and IDE created by
-  **Erel** and published by Anywhere Software Ltd. B4X is a commercial
-  product and a licence is required to build this project — it is not included
-  here.
+  [B4X](https://www.b4x.com/), the cross-platform language and IDE published
+  by Anywhere Software Ltd.
 
 ## See also
 
