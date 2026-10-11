@@ -224,7 +224,7 @@ to report a match as "precise" when it is not. They are documented, not fixed.
   Qəlibləri*. The app's own "About" screen credits this book.
 - **Toolchain:** this app was written in
   [B4X](https://www.b4x.com/), the cross-platform language and IDE created by
-  **Erel** and distributed by Anywhere Software Ltd. B4X is a commercial
+  **Erel** and published by Anywhere Software Ltd. B4X is a commercial
   product and a licence is required to build this project — it is not included
   here.
 
