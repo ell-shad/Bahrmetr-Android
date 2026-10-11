@@ -4,7 +4,12 @@ Bahrmetr is published as an **unmaintained legacy release**. Bug reports,
 algorithm corrections and dataset additions are still very welcome — but you
 should expect to set up your own environment, and to do your own verification.
 
-If you are looking for a maintained aruz tool, this is not it.
+> **The actively developed version is the [web app](https://bahrmetr.netlify.app/)**
+> ([source](https://github.com/ell-shad/Bahrmetr), MIT licensed). Feature requests
+> and general bug reports for everyday use are better directed there. This
+> repository is for the historical Android release and anyone forking it.
+
+If you are looking for a maintained aruz tool, use the web app.
 
 ---
 

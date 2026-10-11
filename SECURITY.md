@@ -167,10 +167,14 @@ pressing, but it should still be raised.
 This is an archived, unmaintained project. There is no supported disclosure
 channel and no guarantee of a response.
 
-If you find a security issue, open a GitHub issue describing it — for an archived
-project that is proportionate. Please do not publish exploit details for
-anything affecting users of the published app before the maintainer has had a
-chance to react.
+The actively developed successor is the [web app](https://bahrmetr.netlify.app/)
+([source](https://github.com/ell-shad/Bahrmetr)) — security issues affecting
+that project should be raised in its own repository.
+
+If you find a security issue in *this* code, open a GitHub issue describing it —
+for an archived project that is proportionate. Please do not publish exploit
+details for anything affecting users of the published Android app before the
+maintainer has had a chance to react.
 
 ---
 

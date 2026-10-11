@@ -19,6 +19,22 @@
 
 ---
 
+## ➡️ Looking for the current version?
+
+This repository holds the **legacy Android app**. There is a newer, actively
+developed web app — no install, works on any device:
+
+| | |
+|---|---|
+| **Live app** | **https://bahrmetr.netlify.app/** |
+| **Source** | **https://github.com/ell-shad/Bahrmetr** |
+
+The web app is a from-scratch Vite + TypeScript rewrite, is **MIT licensed**,
+and is a separate project from this one. This repository remains here as the
+historical record of the original Android release.
+
+---
+
 Paste three verses of a poem; the app encodes each one into a vowel/consonant
 pattern and matches it against a database of 12 aruz meters, returning both the
 meter name (*behr*) and its rhythmic pattern (*qəlib*).
@@ -47,12 +63,15 @@ meter name (*behr*) and its rhythmic pattern (*qəlib*).
 
 ---
 
-## ⚠️ Status: legacy, released as-is
+## ⚠️ Status: legacy, superseded
 
-This is the **original source of a shipped Android app**, published for
-reference and reuse. It has **not** been modernised and is **not maintained**.
+This is the **original source of the shipped Android app**, published for
+reference and for anyone who needs to build on it. It has **not** been
+modernised and is **not maintained**.
 
-Specifically:
+For everyday use, see the [web app](https://bahrmetr.netlify.app/) instead.
+
+Specifically, for this repository:
 
 - ❌ It has **not** been rebuilt or re-verified since September 2023.
 - ❌ It **does not compile as-is** — see [BUILD.md](BUILD.md) for what is missing.
@@ -203,6 +222,11 @@ to report a match as "precise" when it is not. They are documented, not fixed.
   Qəlibləri*. The app's own "About" screen credits this book.
 - Built with [B4X](https://www.b4x.com/) by [Erel](https://www.b4x.com/b4x.html).
 - Published by Elshad Guliyev / Coriolis.
+
+## See also
+
+- **Current web app** — https://bahrmetr.netlify.app/ ·
+  source: https://github.com/ell-shad/Bahrmetr (MIT)
 
 ---
 
