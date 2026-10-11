@@ -218,10 +218,15 @@ to report a match as "precise" when it is not. They are documented, not fixed.
 
 ## Credits
 
+- **Author:** Elshad Guliyev — original concept, matching algorithm and meter
+  dataset.
 - **Meter data** was compiled from Şirvani Ədili, *Əruz Vəzninin Sadələşdirilmiş
   Qəlibləri*. The app's own "About" screen credits this book.
-- Built with [B4X](https://www.b4x.com/) by [Erel](https://www.b4x.com/b4x.html).
-- Published by Elshad Guliyev / Coriolis.
+- **Toolchain:** this app was written in
+  [B4X](https://www.b4x.com/), the cross-platform language and IDE created by
+  **Erel** and distributed by Anywhere Software Ltd. B4X is a commercial
+  product and a licence is required to build this project — it is not included
+  here.
 
 ## See also
 

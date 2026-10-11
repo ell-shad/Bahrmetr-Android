@@ -15,7 +15,7 @@ importantly — what is **missing** from this repository.
 | | |
 |---|---|
 | **OS** | Windows 10/11 — B4X is Windows-only, and this project hard-codes Robocopy (see [below](#windows-only-references)) |
-| **IDE** | [B4X IDE](https://www.b4x.com/b4a.html) 12.5 or later |
+| **IDE** | [B4X IDE](https://www.b4x.com/b4a.html) 12.5 or later, by Erel / Anywhere Software Ltd |
 | **License** | B4X is commercial. A **paid B4A subscription is required** to compile an Android app. The IDE will not build without one. |
 | **JDK** | Bundled with B4X; nothing to install separately |
 | **Android SDK** | Platform 33 (`android-33`) — see [`d8_arguments.txt` reconstruction](#recovered-build-environment) |
@@ -224,7 +224,7 @@ This repository's GPL-3.0 license covers **only the Bahrmetr source code you
 see under `Project/`**. It does not relicense any bundled library.
 
 The B4X `*.b4a` project file format and the B4A runtime are products of
-[Erel / B4X](https://www.b4x.com/) and are covered by the B4X EULA. This
+**Erel / Anywhere Software Ltd** and are covered by the B4X EULA. This
 project is not affiliated with or endorsed by B4X.
 
 ---
